@@ -1,5 +1,7 @@
 > 关于翻译本书的缘由，请看[这里](why_this_project/README.html)。
 
+> [这里](http://beyondvincent.gitbooks.io/the-swift-programming-language-chinese-bv-version/)有本书在 GitBook 上面的地址。
+
 ---
 
 ##The Swift Programming Language 中文破船版
