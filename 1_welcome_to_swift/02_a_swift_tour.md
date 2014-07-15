@@ -220,8 +220,121 @@ secondForLoop
 <a name="Functions_and_Closures"></a>
 ##函数和闭包
 
+使用 `func` 来声明一个函数。通过在函数名称后面的括弧中跟上参数列表，就可以对函数进行调用。
+
+```swift
+func greet(name: String, day: String) -> String {
+    return "Hello \(name), today is \(day)."
+}
+greet("Bob", "Tuesday")
+```
+
+> ####实验
+> 移除掉上面代码中的 `day` 参数，然后添加一个参数，用来在问候中包含今天的午餐。
+
+使用一个元祖 (tuple) 可以从一个函数中返回多个值。
+
+```swift
+func getGasPrices() -> (Double, Double, Double) {
+    return (3.59, 3.69, 3.79)
+}
+getGasPrices()
+```
+
+函数同样可以接受可变参数，它会将这些参数封装进一个数组中。
+
+```swift
+func sumOf(numbers: Int...) -> Int {
+    var sum = 0
+    for number in numbers {
+        sum += number
+    }
+    return sum
+}
+sumOf()
+sumOf(42, 597, 12)
+```
+
+>####实验
+> 写一个函数，用来计算出该函数中参数的平均值。
+
+函数还可以嵌套。被嵌套的函数可以访问外部函数中定义的变量。我们可以用嵌套函数来编写长或复杂的代码。
+
+```swift
+func returnFifteen() -> Int {
+    var y = 10
+    func add() {
+        y += 5
+    }
+    add()
+    return y
+}
+returnFifteen()
+```
+
+swift 中的函数是 一等 (first-class) 类型。这就意味着一个函数可以将另外一个函数以值的方式返回。
+
+```swift
+func makeIncrementer() -> (Int -> Int) {
+    func addOne(number: Int) -> Int {
+        return 1 + number
+    }
+    return addOne
+}
+var increment = makeIncrementer()
+increment(7)
+```
+
+函数还可以当做参数传入到另外一个函数中。
+
+```swift
+func hasAnyMatches(list: [Int], condition: Int -> Bool) -> Bool {
+    for item in list {
+        if condition(item) {
+            return true
+        }
+    }
+    return false
+}
+func lessThanTen(number: Int) -> Bool {
+    return number < 10
+}
+var numbers = [20, 19, 7, 12]
+hasAnyMatches(numbers, lessThanTen)
+```
+
+函数实际上是一种特殊的闭包：可以在后面调用函数中的代码块。在闭包中的代码可以访问在创建闭包所在范围构建的内容，例如变量和函数，甚至是闭包在执行的时候可以访问不同范围的内容 — 例如上面介绍的嵌套函数。我们可以写没有名字的闭包，只需要将代码写在大括弧 (`{}`) 内即可。在闭包代码体内利用 `in` 关键字将参数和返回值与代码体分隔开。
+
+```swift
+numbers.map({
+    (number: Int) -> Int in
+    let result = 3 * number
+    return result
+    })
+```
+
+>####实验
+> 重写上面的闭包代码，所有的奇数都返回 0。
+
+有多种选择可以让编写的闭包代码更简洁。当已知闭包的类型时，例如调用一个 delegate，那么可以忽略掉它的参数和返回值。一行语句的闭包表示将返回语句的值。
+
+```swift
+let mappedNumbers = numbers.map({ number in 3 * number })
+mappedNumbers
+```
+
+对参数的引用可以用参数的位置来代替参数的名称 — 这种方法在很短的闭包中非常有用。一个闭包以最后一个参数传递给某个函数时，这个闭包可以立即跟在括弧后面。
+
+```swift
+let sortedNumbers = sorted(numbers) { $0 > $1 }
+sortedNumbers
+```
+
 <a name="Objects_and_Classes"></a>
 ##对象和类
+
+
+
 
 
 <a name="Enumerations_and_Structures"></a>
