@@ -138,6 +138,84 @@ if let name = optionalName {
 > ####实验
 > 将 `optionalName` 的值修改为 `nil`。看看得到什么结果？添加一个 `else` 分支，如果 `optionalName` 是 `nil` 时，设置不同的问候。
 
+如果可选值是 `nil'，条件表达式将是 `false`，就不会执行括弧中的代码。否则，将会把值展开，并赋给 `let` 后面的常量，可以在后面的代码块中使用这个常量值。
+
+switch 支持任意类型的数据，以及各种各样的比较操作 — 不限于整型和相等性检测。
+
+```swift
+let vegetable = "red pepper"
+switch vegetable {
+case "celery":
+    let vegetableComment = "Add some raisins and make ants on a log."
+case "cucumber", "watercress":
+    let vegetableComment = "That would make a good tea sandwich."
+case let x where x.hasSuffix("pepper"):
+    let vegetableComment = "Is it a spicy \(x)?"
+default:
+    let vegetableComment = "Everything tastes good in soup."
+}
+```
+
+> ####实验
+> 移除上面代码中的 default 分支。观察一下会发生什么？
+
+在执行完匹配上的 case 之后，程序会退出 switch 语句，并不会接着执行后续的 case。所以在 case 语句代码的尾部不需要明确写上 break。
+
+使用 `for-in` 可以迭代字典中的每一项，每次可以获得一对键值。
+
+```swift
+let interestingNumbers = [
+    "Prime": [2, 3, 5, 7, 11, 13],
+    "Fibonacci": [1, 1, 2, 3, 5, 8],
+    "Square": [1, 4, 9, 16, 25],
+]
+var largest = 0
+for (kind, numbers) in interestingNumbers {
+    for number in numbers {
+        if number > largest {
+            largest = number
+        }
+    }
+}
+largest
+```
+
+> ####实验
+> 添加另外一个变量来记录最大数字的类型。
+
+使用 `while` 来重复执行代码块，直到条件发生改变。循环条件可以放在尾部，这样可以确保代码块至少运行一次。
+
+```swift
+var n = 2
+while n < 100 {
+    n = n * 2
+}
+n
+
+var m = 2
+do {
+    m = m * 2
+} while m < 100
+m
+```
+
+在循环中可以使用索引 — 通过 `..<` 设置索引的范围或明确的写出初始值、条件和增量。下面的两个循环结果是一样的：
+
+```swift
+var firstForLoop = 0
+for i in 0..<4 {
+    firstForLoop += i
+}
+firstForLoop
+
+var secondForLoop = 0
+for var i = 0; i < 4; ++i {
+    secondForLoop += i
+}
+secondForLoop
+```
+
+使用 `..<` 构建的范围忽略了上限值，而使用 `...<`构建的范围则包括上限和下限值。
 
 <a name="Functions_and_Closures"></a>
 ##函数和闭包
@@ -155,3 +233,48 @@ if let name = optionalName {
 <a name="Generics"></a>
 ##泛型
 
+在尖括弧里面写一个名称就能构建一个泛型函数或类型。
+
+```swift
+func repeat<ItemType>(item: ItemType, times: Int) -> [ItemType] {
+    var result = [ItemType]()
+    for i in 0..<times {
+        result += item
+    }
+    return result
+}
+repeat("knock", 4)
+```
+
+我们不仅可以构建泛型函数和方法，还可以是泛型类、枚举和结构体。
+
+```swift
+// 重新实现了 Swift 标准库中的可选类型
+enum OptionalValue<T> {
+    case None
+    case Some(T)
+}
+var possibleInteger: OptionalValue<Int> = .None
+possibleInteger = .Some(100)
+```
+
+在类型名称后面可以使用 `where` 指定需求列表 — 例如，要求类型实现一个协议，要求两个类型都是相同的，或者要求一个类是继承自某个特定的类。
+
+```swift
+func anyCommonElements <T, U where T: Sequence, U: Sequence, T.GeneratorType.Element: Equatable, T.GeneratorType.Element == U.GeneratorType.Element> (lhs: T, rhs: U) -> Bool {
+    for lhsItem in lhs {
+        for rhsItem in rhs {
+            if lhsItem == rhsItem {
+                return true
+            }
+        }
+    }
+    return false
+}
+anyCommonElements([1, 2, 3], [3])
+```
+
+> ####实验
+> 修改 `anyCommonElements` 方法，让其返回一个数组，该数组中的值同时存在于两个序列中。
+
+在编写简单的类时，可以忽略掉 `where` 关键字，只需要将协议或类名跟在一个冒号后面即可。例如 `<T: Equatable> ` 的写法与 `<T where T: Equatable>` 一样。
