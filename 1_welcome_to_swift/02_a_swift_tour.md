@@ -24,7 +24,7 @@ println("Hello, world")
 这里的概述通过向你展示如何完成各种编程任务，提供足够多的信息来开始写 Swift 代码。本节中介绍的某些内容如果你不理解，也不用担心，在本书的后续章节中会做详细的解释。
 
 > ####注意
-> 为了最佳编程体验，在 Xcode 中以 playground 方式打开本章内容。Playground 允许我们编写代码边看结果。
+> 为了最佳编程体验，在 Xcode 中以 playground 方式打开本章内容。Playground 允许我们边写代码边看结果。
 >
 > 打开 [Playground](https://github.com/BeyondVincent/the-swift-programming-language-chinese-bv-version/blob/master/1_welcome_to_swift/GuidedTour.playground.zip?raw=true)
 
@@ -333,8 +333,164 @@ sortedNumbers
 <a name="Objects_and_Classes"></a>
 ##对象和类
 
+在 `class` 后面跟上类名就可以创建一个类。在类中，属性声明的写法与常量或者变量声明一样，唯一的区别就是它们的上下文处于类中。同样，函数和方法的声明也是一样的。
 
+```swift
+class Shape {
+    var numberOfSides = 0
+    func simpleDescription() -> String {
+        return "A shape with \(numberOfSides) sides."
+    }
+}
+```
 
+>####实验
+> 在上面的代码中用 `let` 添加一个常量属性，以及带一个参数的方法。
+
+在类名后面跟上括弧就能创建一个类实例。使用 `.` 语法可以访问实例的属性和方法。
+
+```swift
+var shape = Shape()
+shape.numberOfSides = 7
+var shapeDescription = shape.simpleDescription()
+```
+
+上面的 `Shape` 类缺少一些重要的内容：当创建类实例时所需要进行的初始化工作。我们使用 `init` 可以创建一个。
+
+```swift
+class NamedShape {
+    var numberOfSides: Int = 0
+    var name: String
+
+    init(name: String) {
+        self.name = name
+    }
+
+    func simpleDescription() -> String {
+        return "A shape with \(numberOfSides) sides."
+    }
+}
+```
+
+注意观察， `init` 中的 `self` 用来区分属性 `name` 和参数中的`name`。接收一个参数的初始化方法会在创建类的实例时被调用。每一个属性都需要被赋值 — 无论是在类中声明的 (例如 `numberOfSides`) 或者是在初始化方法中 (如 `name`)。
+
+如果需要在对象销毁之前执行一些清理任务，可以利用实现一下 `deinit` 方法。
+
+子类后面可以跟上父类，中间用冒号隔开。在 Swift 中不需要子类继承自某个标准的基类。所以根据需求，我们可以包含或者略去某个父类。
+
+子类中的方法想要重写 (override) 父类中实现的方法，需要将其标记为 `override` — 如果重写了父类中的某个方法，但是没有 `override` 标记，编译器会检测出相关错误。另外如果在类中标记为 `override` 的方法，不存在于父类中，编译器同样会报错。
+
+```swift
+class Square: NamedShape {
+    var sideLength: Double
+
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 4
+    }
+
+    func area() ->  Double {
+        return sideLength * sideLength
+    }
+
+    override func simpleDescription() -> String {
+        return "A square with sides of length \(sideLength)."
+    }
+}
+let test = Square(sideLength: 5.2, name: "my test square")
+test.area()
+test.simpleDescription()
+```
+
+>####实验
+> 构建另外一个基于 `NamedShape` 的子类：`Circle`，它的初始化方法接收两个参数：半径和姓名。并实现 `area` 和 `describe` 两个方法。
+
+除了简单属性的存储外，属性还可以有 getter 和 setter。
+
+```swift
+class EquilateralTriangle: NamedShape {
+    var sideLength: Double = 0.0
+
+    init(sideLength: Double, name: String) {
+        self.sideLength = sideLength
+        super.init(name: name)
+        numberOfSides = 3
+    }
+
+    var perimeter: Double {
+    get {
+        return 3.0 * sideLength
+    }
+    set {
+        sideLength = newValue / 3.0
+    }
+    }
+
+    override func simpleDescription() -> String {
+        return "An equilateral triangle with sides of length \(sideLength)."
+    }
+}
+var triangle = EquilateralTriangle(sideLength: 3.1, name: "a triangle")
+triangle.perimeter
+triangle.perimeter = 9.9
+triangle.sideLength
+```
+
+上面的代码中为 `perimeter` 编写了一个 setter，隐式的新值用命名为 `newValue`。在 `set` 后面可以写一个明确的名称在括号中。
+
+注意 `EquilateralTriangle` 类的初始化方法中有 3 个不同的步骤：
+
+1. 设置这个子类中声明属性的值。
+2. 调用父类中的初始化方法。
+3. 修改父类中定义的属性值。此处可以做一些额外的工作，例如使用方法，getters 或 setters。
+
+如果你不需要对属性做计算，但是又想在属性设置新值之前和之后执行一些代码，那么请使用 `willSet` 和 `didSet`。例如，下面这个类总是能够确保三角形的边长与正方形的边长相等。
+
+```swift
+class TriangleAndSquare {
+    var triangle: EquilateralTriangle {
+    willSet {
+        square.sideLength = newValue.sideLength
+    }
+    }
+    var square: Square {
+    willSet {
+        triangle.sideLength = newValue.sideLength
+    }
+    }
+    init(size: Double, name: String) {
+        square = Square(sideLength: size, name: name)
+        triangle = EquilateralTriangle(sideLength: size, name: name)
+    }
+}
+var triangleAndSquare = TriangleAndSquare(size: 10, name: "another test shape")
+triangleAndSquare.square.sideLength
+triangleAndSquare.triangle.sideLength
+triangleAndSquare.square = Square(sideLength: 50, name: "larger square")
+triangleAndSquare.triangle.sideLength
+```
+
+类中的函数 (methods) 与普通方法 (functions) 有一个重要的区别。在普通方法中的参数名称只能用于方法内容，而类中函数的参数名称在调用该函数时需要用到 (除了第一个参数)。默认情况下，在调用函数或者函数内部时，，函数的参数名称与参数一样。当然，你可以指定另外一个名称，在函数内部使用。
+
+```swift
+class Counter {
+    var count: Int = 0
+    func incrementBy(amount: Int, numberOfTimes times: Int) {
+        count += amount * times
+    }
+}
+var counter = Counter()
+counter.incrementBy(2, numberOfTimes: 7)
+```
+
+当使用可选值 (optional values) 时，可以在操作 (这些操作包括函数，属性和下标) 之前写一个 `?`。如果 `?` 前面的值是 `nil`，那么会忽略掉 `?` 后面的所有内容，并且整个表达式的值为 `nil`，否则可选值将被展开运行，所有 `?` 后面内容的运行结果将作为可选值。这两种情况下，整个表达式的值都是一个可选值。
+
+```swift
+let optionalSquare: Square? = Square(sideLength: 2.5, name: "optional square")
+let sideLength = optionalSquare?.sideLength
+
+```
 
 
 <a name="Enumerations_and_Structures"></a>
