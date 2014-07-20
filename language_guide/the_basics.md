@@ -19,6 +19,12 @@
  * [断言](#Assertions)
 ---
 
+Swift 是一门新的编程语言，用于 iOS 和 OS X 应用程序开发。尽管如此，Swift 中的许多内容与 C 和 Objective-C 相似。
+
+Swift 有自己的一套基础类型，包括整型 `Int`；浮点值 `Double` 和 `Float`；布尔值 `Bool`；文本数据 `String`。Swift 同样提供了来非常重要的[集合类型](Collection_Types.html)：`Array` 和 `Dictionary`。
+
+跟 C 类似，Swift 使用变量 (通过一个标示名称来表示) 来存储和引用值。Swift 同样使用了值不可变的变量，称之为常量，比 C 中的常量还要强大。在编程时，如果用到的值不需要改变，那么使用常量可以让代码更加的安全和整洁。
+
 
 <a name="Constants_and_Variables"></a>
 ##常量和变量
