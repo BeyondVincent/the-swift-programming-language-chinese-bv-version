@@ -492,12 +492,186 @@ let sideLength = optionalSquare?.sideLength
 
 ```
 
-
 <a name="Enumerations_and_Structures"></a>
 ##枚举和结构体
 
+使用关键字 `enum` 关键字来创建枚举。枚举跟类和其它命名类型一样，枚举中可以包含函数。
+
+```swift
+enum Rank: Int {
+    case Ace = 1
+    case Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten
+    case Jack, Queen, King
+    func simpleDescription() -> String {
+        switch self {
+        case .Ace:
+            return "ace"
+        case .Jack:
+            return "jack"
+        case .Queen:
+            return "queen"
+        case .King:
+            return "king"
+        default:
+            return String(self.toRaw())
+        }
+    }
+}
+let ace = Rank.Ace
+let aceRawValue = ace.toRaw()
+```
+
+>####实验
+>写一个方法对两个 `Rank` 的原始值进行对比。
+
+在上面的示例中，枚举的原始值类型是 `Int`，所以只需要指定第一个原始值即可。剩余的原始值会按顺序被赋值。除了使用 `Int` 外，还可以使用字符串或浮点型当做枚举的原始值类型。
+
+使用 `toRaw` 和 `fromRaw` 方法可以在原始值和枚举值之间进行转换。
+
+```swift
+if let convertedRank = Rank.fromRaw(3) {
+    let threeDescription = convertedRank.simpleDescription()
+}
+```
+
+枚举的成员值就是其实际的值，并不需要为其写另外一个原始值。。实际上，如果原始值没有意义，那么可以不提供。
+
+```swift
+enum Suit {
+    case Spades, Hearts, Diamonds, Clubs
+    func simpleDescription() -> String {
+        switch self {
+        case .Spades:
+            return "spades"
+        case .Hearts:
+            return "hearts"
+        case .Diamonds:
+            return "diamonds"
+        case .Clubs:
+            return "clubs"
+        }
+    }
+}
+let hearts = Suit.Hearts
+let heartsDescription = hearts.simpleDescription()
+```
+
+>####实验
+>给上面的 `Suit` 添加一个 `color` 方法，如果是 spades 和 clubs 则返回 "black"，如果是 hearts 和 diamonds 则返回 "red"。
+
+注意观察上面代码中涉及到 `Hearts` 成员的两种使用方法：当给常量 `hearts` 赋值时，由于常量没有明确的指定类型，所以枚举成员变量 `Suit.Hearts` 的使用方式是全名引用。而在 switch 内部，通过 `.Hearts` 的方式引用枚举，这是因为里面的 `self` 值被当做 Suit 处理。当某个值的类型已知的情况下，可以在任意时候使用简写。
+
+使用 `sturct` 来创建结构体。结构体支持的许多行为与类相似，，包括函数和初始化。结构体与类最重要的一个区别就是：在代码中传递结构体时，总是值传递，而类则是引用传递。
+
+```swift
+struct Card {
+    var rank: Rank
+    var suit: Suit
+    func simpleDescription() -> String {
+        return "The \(rank.simpleDescription()) of \(suit.simpleDescription())"
+    }
+}
+let threeOfSpades = Card(rank: .Three, suit: .Spades)
+let threeOfSpadesDescription = threeOfSpades.simpleDescription()
+```
+
+>####实验
+>在 `Card` 中添加一个方法，以构建一副完整的扑克牌，每张牌由点数和花色构成。
+
+一个枚举成员的实例可以有与实例相关的值。相同枚举成员的实例可以有不同的值。在创建实例时，我们提供相关的值即可。实例相关的值与原始值是不同的：对于同一个枚举成员的所有实例来说，它们的原始值都是相同的，这些原始值是在定义枚举的时候提供的。
+
+例如，我们从服务器上请求日出和日落的时间。服务器要么返回相关正确信息，要么返回一些错误信息。
+
+```swift
+enum ServerResponse {
+    case Result(String, String)
+    case Error(String)
+}
+
+let success = ServerResponse.Result("6:00 am", "8:09 pm")
+let failure = ServerResponse.Error("Out of cheese.")
+
+switch success {
+case let .Result(sunrise, sunset):
+    let serverResponse = "Sunrise is at \(sunrise) and sunset is at \(sunset)."
+case let .Error(error):
+    let serverResponse = "Failure...  \(error)"
+}
+```
+
+>####实验
+>给 `ServerResponse` 和 switch 添加第三个 case。
+
+注意观察上面的代码中，ServerResponse 作为 switch case 匹配值的一部分，我们是如何从 ServerResponse 中提取出 日出和日落时间的。
+
 <a name="Protocols_and_Extensions"></a>
 ##协议和扩展
+
+使用 `protocol` 关键字来声明一个协议。
+
+```swift
+protocol ExampleProtocol {
+    var simpleDescription: String { get }
+    mutating func adjust()
+}
+```
+
+类，枚举和结构体都可以遵循协议。
+
+```swift
+class SimpleClass: ExampleProtocol {
+    var simpleDescription: String = "A very simple class."
+    var anotherProperty: Int = 69105
+    func adjust() {
+        simpleDescription += "  Now 100% adjusted."
+    }
+}
+var a = SimpleClass()
+a.adjust()
+let aDescription = a.simpleDescription
+
+struct SimpleStructure: ExampleProtocol {
+    var simpleDescription: String = "A simple structure"
+    mutating func adjust() {
+        simpleDescription += " (adjusted)"
+    }
+}
+var b = SimpleStructure()
+b.adjust()
+let bDescription = b.simpleDescription
+```
+
+>####实验
+>参考上面的代码，写一个遵循 `ExampleProtocol` 协议的枚举。
+
+注意在上面声明 `SimpleStructure` 代码中使用了 `mutating` 关键字，用来对某个方法做出标记，表示其修改了结构。而 `SimpleClass` 不需要对其中的函数做出这样的标记，因为在类中的方法可以总是对类做出修改。
+
+使用 `extension` 关键字可以给已存在的类型添加功能，例如添加一个新的函数和对属性做出计算处理。通过`extension`，你可以给某个类型添加一个遵循的协议，这个类型可以是在任何地方声明的，也可以是从某个库或者 framework 中导入的。
+
+```swift
+extension Int: ExampleProtocol {
+    var simpleDescription: String {
+    return "The number \(self)"
+    }
+    mutating func adjust() {
+        self += 42
+    }
+}
+7.simpleDescription
+```
+
+>####实验
+>给 `Double` 类型写一个 `extension`，添加一个 `absoluteVule` 属性。
+
+你可以像使用其它类型一样使用协议名称 — 例如，创建一个不同类型，但又都遵循单个协议的对象的集合。当使用协议定义的值时，超出协议所定义的方法是不可用的。
+
+```swift
+let protocolValue: ExampleProtocol = a
+protocolValue.simpleDescription
+// protocolValue.anotherProperty  // Uncomment to see the error
+```
+
+虽然 `protocolValue` 拥有一个 `SimpleClass` 的运行时类型，但是编译器依旧根据指定的 `ExampleProtocol` 类型来处理。这就意味着你不能用其访问在类中实现，而没有在协议中声明的方法或属性。
 
 <a name="Generics"></a>
 ##泛型
