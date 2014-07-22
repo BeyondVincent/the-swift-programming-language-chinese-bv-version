@@ -26,6 +26,7 @@
    * [扩展](language_guide/extensions.md)
    * [协议](language_guide/protocols.md)
    * [泛型](language_guide/generics.md)
+   * [访问控制](language_guide/access_control)
    * [高级运算符](language_guide/advanced_operators.md)
 * [Swift 语言参考](language_reference/README.md)
    * [关于 Swift 语言参考](language_reference/about_the_language_reference.md)
